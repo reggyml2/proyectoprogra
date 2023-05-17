@@ -1,36 +1,34 @@
 #include <stdio.h>
 #include <string.h>
 
-typedef enum {
+typedef enum {	//departamento de trabajadores
 	RRHH=1,
 	CONSULTORIA=2,
 	DISENO=3,
-	PRODUCCION=4,//departamento de trabajadores
+	PRODUCCION=4,
 	CALIDAD=5,
 	DISTRIBUCION=6 
 }departamento;
 
-typedef enum cargos{
+typedef enum cargos{	//cargos de trabajadores
 	GERENTE=1,
 	SUPERVISOR=2,
 	ANALISTA=3,
-	DISENADOR=4,//cargos de trabajadores
+	DISENADOR=4,
 	DESARROLLADOR=5,
 	AUDITOR=6 
 }cargos_t;
 
-typedef struct 
-{
+typedef struct {	//fecha de ingreso
 	int dia;
-	int mes; //fecha de ingreso
+	int mes; 
 	int ano; 
 }FECHA;
 
-typedef struct {
-	
+typedef struct {	//datos empleados 
 	int CI;
 	char nombre[20];
-	char apellido[20];	//datos empleados   
+	char apellido[20];	  
 	float sueldo;
 	FECHA fecha;	
 }empleado;
@@ -48,13 +46,16 @@ void CONSULTAporDEPA();
 void CONSULTAporCARGO();
 void contarDepa(int* emple, float* sueldo, char depa[20]);
 void contarCargo(int* eEMPLE, float* SUELDOS, char cargo[20]);
-//void sueldoMayorMenor();
-// prototipo: 3. modulo modificar
+void sueldoMayorMenor();
+
+// prototipo: 3.modulo modificar
 void modificar(FILE* arch);
+
 //prototipo: 4.modulo eliminar
 void eliminar(FILE* arch);
 //void eliminarEMPLEADO(FILE* arch);
 void ingresarEMPLE(empleado empleados, FILE* ARCH,char depa[20],char cargo[20]);
+
 //programa principal
 int main(){
 	empleado empleados[2000];
@@ -64,12 +65,11 @@ int main(){
 	//verificar que el documento abrio perfectamente
 	if((trabajadores=fopen("trabajadores.in","a+"))==NULL){ 
 		printf("\nError: no se pudo abrir el archivo");
-		
 	}else{
 		//imprimir menu
 		do{
 			printf("\n===============================================\n\n");
-			printf("\n  |     BIENVENIDO AL GESTOR DE EMPLEADOS    |\n");
+			printf("\n  |     BIENVENIDO AL GESTOR DE EMPLEADOS     |\n");
 			printf("  |           [1] INGRESAR                      |\n");
 			printf("  |           [2] CONSULTAR                     |\n");
 			printf("  |           [3] MODIFICAR                     |\n");
@@ -77,10 +77,10 @@ int main(){
 			printf("  |           [5] SALIR                         |\n");
 			printf("\n===============================================\n\n");
 			printf("OPCION: ");
-			scanf("%s",&op); // se ha puesto las opciones tipo caracter para que no hayan errores en caso que se ingrese un caracter en vez de un entero
+			scanf("%s",&op); //se han puesto las opciones tipo caracter para que no hayan errores en caso que se ingrese un caracter en vez de un entero
 			switch (op){
 				case '1':
-					//este caso ingresa los empleados a un archivo .in 
+					//este caso ingresa los empleados a un archivo.in 
 					do{
 						printf("\nIngrese la cantidad de personas que desea ingresar: ");
 						scanf("%d", &lim);	    
@@ -94,9 +94,10 @@ int main(){
 					menuDeOpciones();
 				break;
 				case '3':
-					//modificacion de los trabajadores
-					modificar(trabajadores);
 					fclose(trabajadores);
+					modificar();
+					remove("trabajadores.in");//eliminamos el archivo viejo
+					rename("trabajadores2.in","trabajadores.in");//reasignamos el nombre del archivo principal al secundario
 				break;
 				case '4':
 					trabajadores=fopen("trabajadores.in","r");
@@ -108,6 +109,8 @@ int main(){
 					printf("\n\n============================\n\n");
 					printf("    |   ADIOS, VUELVA PRONTO :) |  ");
 					printf("\n\n============================\n\n");
+					fclose(trabajadores);
+					remove("trabajadores.in");
 				break; 
 			default:
 					printf("\n\n\n===============================================\n\n");
@@ -115,13 +118,12 @@ int main(){
 					printf("\n\n=============================================\n\n\n");
 				break;
 			}
-
 		}while(op!='5');
 		fclose(trabajadores);
 	}
-	
 	return 0;
 }
+
 /*
 1. modulo ingresar
 Permite registrar la informacion de nuevos trabajadores, de acuerdo a los datos indicados 
@@ -198,12 +200,11 @@ void departamentos(FILE* deparARCH){
 			break;
 			case DISTRIBUCION:
 				fprintf(deparARCH,"%s\t\t", "DISTRIBUCION");
-			break;
-				
+			break;	
 		}
-			
 	}while ((depa!=1) && (depa!=2) && (depa!=3) && (depa!=4) && (depa!=5) && (depa!=6));
 }
+
 //funcion que llena el campo cargo
 void cargos(FILE* cargARCH){
 	int CARGOS;
@@ -236,7 +237,6 @@ void cargos(FILE* cargARCH){
 			case AUDITOR:
 				fprintf(cargARCH,"%s\t\t","AUDITOR");
 			break;
-			
 		}
 	}while ((CARGOS!=1) && (CARGOS!=2) && (CARGOS!=3) && (CARGOS!=4) && (CARGOS!=5) && (CARGOS!=6));
 }
@@ -276,23 +276,22 @@ int validarFecha(int dia,int mes,int ano){
 			break;
 		}
 	}
-
 		return 0;
 }
 
-
+//2.modulo consulta
 //menu de opciones del modulo dos
 void menuDeOpciones(){
 	char op;
 	//imprimimos menu para preguntar al usuario que tipo de busqueda quiere hacer
 	do{
 		printf("\n===============================================================\n\n");
-		printf("\n  |     	BIENVENIDO AL GESTOR DE EMPLEADOS          |\n");
+		printf("\n |     	BIENVENIDO AL GESTOR DE EMPLEADOS          	|\n");
 		printf("  |           [a] CONSULTA POR CI                      		|\n");	
 		printf("  |           [b] CONSULTA POR DEPARTAMENTO                    	|\n");
 		printf("  |           [c] CONSULTA POR CARGO                     	|\n");
 		printf("  |           [d] MENOR Y MAYOR SUELDO                    	|\n");
-		printf("  |           [f] SALIR                         	        |\n");
+		printf("  |           [e] SALIR                         	        |\n");
 		printf("\n===============================================================\n\n");
 		printf("OPCION: ");
 		scanf("%s",&op);
@@ -311,19 +310,19 @@ void menuDeOpciones(){
 		break;
 		case 'd':
 			//consultar empleado con mayor y menor sueldo 
+			sueldoMayorMenor();
 		break;
-		case 'f':
-			//ARREGLAR ESTO (APRENDETE EL ABECEDARIO)
+		case 'e':
+			
 		break;
 		default:
 			printf("\n\n\n===============================================\n\n");
 			printf("     |   ESTOY SEGURO QUE ESTO %d NO ES UNA OPCION |  ",op);
 			printf("\n\n=============================================\n\n\n");
 		}
-
-	}while(op!='f');
-	
+	}while(op!='e');
 }
+
 /*consulta por CI, muestra al empleado que esta asociado con esa CI*/
 void consultaPorCi(){
 	//abrimos el archivo y la estructura empleados y variables para los demas datos de dicha estructura
@@ -362,12 +361,10 @@ void consultaPorCi(){
 	}
 
 	fclose(ARCHConsulta);
-
 }
 
 /*consulta por numero de departamento y cuenta cuantos hay ahí,
 genera un archivo con el total de trabajadores y sueldo que hay por todos los trabajadores*/
-
 void CONSULTAporDEPA(){
 	//abrimos el archivo y las variables que vamos a utilizar
 	FILE* ARCHdepa;
@@ -449,15 +446,12 @@ void CONSULTAporDEPA(){
 			default:
 				printf("\nOPCION INVALIDA");
 		}
-
 	}while (depa!=7);
-
 	fclose(ARCHdepa);
-
 }
+
 void contarDepa(int* emple, float* sueldo,char depa[20]){
 	//abrimos el archivo de consulta y la estructura empleados
-
 	FILE* ARCHConsulta;
 	empleado empleados;
 	int sueldos=0;
@@ -485,6 +479,7 @@ void contarDepa(int* emple, float* sueldo,char depa[20]){
 	}
 	fclose(ARCHConsulta);
 }
+
 void CONSULTAporCARGO(){
 	//abrimos el archivo de consulta
 	FILE* ARCHcargo;
@@ -566,7 +561,6 @@ void CONSULTAporCARGO(){
 				printf("\nOPCION INVALIDA");
 		}
 	}while (CARGOS!=7);
-
 	fclose(ARCHcargo);
 }
 
@@ -598,84 +592,134 @@ void contarCargo(int* EMPLE, float* sueldos, char cargo[20]){
 		}
 	}
 	fclose(ARCHcargo);
-
 }
-//trabajador con menor y mayor sueldo
 
-void modificar(FILE* arch){
-	//abrimos el archivo y la estructura empleados y las variables necesarias
-	int ci, exist=0,valiFecha;
+//trabajador con menor y mayor sueldo
+void sueldoMayorMenor(){
+	FILE* ARCHmayorMenor;
+	empleado empleados;
+	float sueldoMayor=0,sueldoMenor=99999999999;
+	int data=0;
+	char departa[20],E_cargo[20],fecha[20],nombreSueldoMayor[20],nombreSueldoMenor[20];
+	//abrimos el archivo
+	ARCHmayorMenor=fopen("trabajadores.in","a+");
+	//veificamos que el archivo abrio correctamente
+	if(ARCHmayorMenor == NULL){ 
+		printf("\nNO SE HA ENCONTRADO ARCHIVO\n");
+		return;
+	}
+	//comenzamos la lectura del archivo secuencialmente
+	while ((data=fgetc(ARCHmayorMenor))!=EOF){
+		//capturamos todos los elementos de la linea
+		fscanf(ARCHmayorMenor,"%d", &empleados.CI);
+		fscanf(ARCHmayorMenor,"%s",empleados.nombre);
+		fscanf(ARCHmayorMenor,"%s",empleados.apellido);
+		fscanf(ARCHmayorMenor,"%s",departa);
+		fscanf(ARCHmayorMenor,"%s",E_cargo);
+		fscanf(ARCHmayorMenor,"%s",fecha);
+		fscanf(ARCHmayorMenor,"%f",&empleados.sueldo);
+		//verificamos el sueldo mayor y lo actualizamos de ser necesario
+		if(empleados.sueldo > sueldoMayor){
+			sueldoMayor=empleados.sueldo;
+			strcpy(nombreSueldoMayor,empleados.nombre);
+		}
+		//verificamos el sueldo menor y lo actualizamos de ser necesario
+		if(empleados.sueldo < sueldoMenor){
+			sueldoMenor=empleados.sueldo;
+			strcpy(nombreSueldoMenor,empleados.nombre);
+		}
+	}
+	//imprimimos nombre del trabajador con sueldo mayor y menor
+	printf("\n\n==========================\n\n");
+	printf("SUELDO MAYOR\n");
+	printf("\n%s: %.2f\n\n",nombreSueldoMayor,sueldoMayor);
+	printf("SUELDO MENOR\n");
+	printf("\n%s: %.2f ",nombreSueldoMenor,sueldoMenor);
+	printf("\n\n==========================\n\n");
+}
+
+//3. modulo modificar
+void modificar(){
+	int ci,valiFecha,exits=0,data=0;
 	empleado empleados;
 	char depa[20],cargo[20],fecha[20];
-
-	if(arch == NULL){
+	FILE* archiempleado, *modifiARCH;
+	archiempleado=fopen("trabajadores.in","a+");
+	modifiARCH=fopen("trabajadores2.in","a+"); //archivo temporal que reemplazara el viejo 
+	if(archiempleado == NULL){
 		printf("\nNO SE ENCONTRO ARCHIVO\n");
 		return;
 	}
+	if(modifiARCH == NULL){
+		printf("\nNO SE ENCONTRO ARCHIVO\n"); // verificamos que se cree 
+		return;
+	}
 	printf("\nINGRESE LA CI DEL USUARIO QUE DESEA MODIFICAR: ");
-	scanf("%d",&ci);
-	//fread(&empleados,sizeof(empleados),1,modificarARCH);
-	//iniciamos el ciclo para encontrar el usuario con la CI ingresada
-	while((!(feof(arch))) && (exist==0)){
-		fscanf(arch,"%d",&empleados.CI);
-		if(empleados.CI ==ci){
-			fscanf(arch,"%s",empleados.nombre);
-			printf("\nEl nombre asociado es: %s",empleados.nombre);
-			fscanf(arch,"%s",empleados.apellido);
-			printf("\nEl apellido asociado es: %s",empleados.apellido);
-			fscanf(arch,"%s",depa);
-			printf("\nEl departamento asociado es: %s",depa);
-			fscanf(arch,"%s",cargo);
-			printf("\nEl cargo asociado es: %s",cargo);
-			fscanf(arch,"%s",fecha);
-			printf("\nLa fecha de ingreso es: %s",fecha);
-			//fread(&empleados,sizeof(empleados),1,arch);
-			exist=1;
-		}	
+	scanf("%d",&ci); //ingresamos CI el usuario a modificar
+
+	while((data=fgetc(archiempleado))!=EOF){
+		fscanf(archiempleado,"%d",&empleados.CI);
+		fscanf(archiempleado,"%s",empleados.nombre);
+		fscanf(archiempleado,"%s",empleados.apellido);
+		fscanf(archiempleado,"%s",depa);//recorremos toda las casillas 
+		fscanf(archiempleado,"%s",cargo);
+		fscanf(archiempleado,"%s",fecha);
+		fscanf(archiempleado,"%f",&empleados.sueldo);
+		if(ci==empleados.CI){ //si encontramos la CI modificamos los datos
+			fprintf(modifiARCH,"\n%d\t\t",empleados.CI);
+			printf("\nINGRESA NUEVO NOMBRE: ");
+			scanf("%s",empleados.nombre);
+			fprintf(modifiARCH,"%s",empleados.nombre);
+			printf("\nINGRESA NUEVO APELLIDO: ");
+			scanf("%s",empleados.apellido);
+			fprintf(modifiARCH," %s\t\t",empleados.apellido);
+			departamentos(modifiARCH);
+			cargos(modifiARCH);
+			do{
+				printf("\nIngresa la fecha que ingreso a la empresa en formato DD/MM/AA: \n");
+				printf("Dia: "); scanf("%d",&empleados.fecha.dia);
+				printf("\nMes: "); scanf("%d",&empleados.fecha.mes);
+				printf("\nAno: "); scanf("%d",&empleados.fecha.ano);
+				valiFecha=validarFecha(empleados.fecha.dia,empleados.fecha.mes,empleados.fecha.ano);
+			}while(valiFecha !=1);
+			if (valiFecha == 1){
+				fprintf(modifiARCH,"%d/%d/%d\t\t", empleados.fecha.dia,empleados.fecha.mes,empleados.fecha.ano);
+			}
+			printf("\nINGRESE NUEVO SALARIO: ");
+			scanf("%f",&empleados.sueldo);
+			fprintf(modifiARCH," %.3f\t\t \n\n",empleados.sueldo);
+			exits=1; //verifica que se encontro empleado 
+
+		}else{ //sino encontramos la CI almacenamos los datos en el archivo nuevo 
+			fprintf(modifiARCH,"\n%d\t\t",empleados.CI);
+			fprintf(modifiARCH,"%s",empleados.nombre);
+			fprintf(modifiARCH," %s\t\t",empleados.apellido);
+			fprintf(modifiARCH,"%s\t\t",depa);
+			fprintf(modifiARCH,"%s\t\t",cargo);
+			fprintf(modifiARCH,"%s\t\t",fecha);
+			fprintf(modifiARCH,"%f\t\t \n\n",empleados.sueldo);
+		}
 	}
-	//si hay ocurrencia establecemos los nuevos datos de ese empleado
-	if(exist==1){
-		printf("\n\n===============================\n");
-		printf("\n\nINGRESE NUEVO NOMBRE: ");
-		scanf("%s",empleados.nombre);
-		printf("%s",empleados.nombre);
-		printf("\nINGRESE NUEVO APELLIDO: ");
-		scanf("%s",empleados.apellido);
-		printf("\nINGRESE NUEVO DEPARTAMENTO: ");
-		departamentos(arch);
-		printf("\nINGRESE NUEVO CARGO: ");
-		cargos(arch);
-		//ciclo de validacion de fecha
-		do{
-			printf("\nIngresa la fecha que ingreso a la empresa en formato DD/MM/AA: \n");
-			printf("Dia: "); scanf("%d",&empleados.fecha.dia);
-			printf("\nMes: "); scanf("%d",&empleados.fecha.mes);
-			printf("\nAno: "); scanf("%d",&empleados.fecha.ano);
-			valiFecha=validarFecha(empleados.fecha.dia,empleados.fecha.mes,empleados.fecha.ano);
-		}while(valiFecha !=1);
-		//ingresamos el nuevo salario
-		printf("\nINGRESE EL NUEVO SALARIO: ");
-		scanf("%f",&empleados.sueldo);
-		//actualizamos al empleado  en el archivo
-		fprintf(arch,"%s",empleados.nombre);
-		fprintf(arch,"%s",empleados.apellido);
-		fprintf(arch,"%s",depa);
-		fprintf(arch,"%s",cargo);
-		fprintf(arch,"%d/%d/%d",empleados.fecha.dia,empleados.fecha.mes,empleados.fecha.ano);
-		//fwrite(&empleados,sizeof(empleados),1,arch);
+	if(exits==1){
+		printf("\nSE ENCONTRO EMPLEADO\n ");
+	}else{
+		printf("\nNO SE ENCONTRO EMPLEADO\n ");
 	}
-	fclose(arch);
+	fclose(archiempleado);
+	fclose(modifiARCH);
 }
 
+//4.modulo eliminar
 void eliminar(FILE* arch){
 	//abrimos el archivo y la estructura empleados y las variables necesarias
-	int ci, exist=0,valiFecha;
+	int ci, exist=0,valiFecha,ret;
 	empleado empleados;
 	char depa[20],cargo[20],fecha[20];
 	FILE* archivotemporal;
 	FILE* extrabajadores;
-	extrabajadores=fopen("extrabajadores.txt","a+");
-	if(arch == NULL){
+	FILE* archiempleado;
+	archiempleado=fopen("trabajadores.in","a+");
+	if(archiempleado == NULL){
 		printf("\nNO SE ENCONTRO ARCHIVO\n");
 		return;
 	}
@@ -683,31 +727,30 @@ void eliminar(FILE* arch){
 	scanf("%d",&ci);
 	//iniciamos el ciclo para encontrar el usuario de la CI ingresada
 	while((!(feof(arch))) && (exist==0)){
-		fscanf(arch,"%d",&empleados.CI);
-		fscanf(arch,"%*[^ \t]");
+		fscanf(arch,"%d", &empleados.CI);
+		fscanf(arch,"%s",empleados.nombre);
+		fscanf(arch,"%s",empleados.apellido);
+		fscanf(arch,"%s",cargo);
+		fscanf(arch,"%s",depa);
+		fscanf(arch,"%s",fecha);
+		fscanf(arch,"%f",&empleados.sueldo);
 		if(empleados.CI ==ci){
-			fscanf(arch,"%s",empleados.nombre);
 			printf("\nEl nombre asociado es: %s",empleados.nombre);
-			fscanf(arch,"%s",empleados.apellido);
 			printf("\nEl apellido asociado es: %s",empleados.apellido);
-			fscanf(arch,"%s",depa);
 			printf("\nEl departamento asociado es: %s",depa);
-			fscanf(arch,"%s",cargo);
 			printf("\nEl cargo asociado es: %s",cargo);
-			fscanf(arch,"%s",fecha);
 			printf("\nLa fecha de ingreso es: %s",fecha);
 			exist=1;
 		}	
 	}
-	//si hay ocurrencia establecemos los nuevos datos de ese empleado
 	if(exist==1){
 		char op;
 		//le preguntamos al usuario si esta seguro de eliminar al empleado
 		do{
 			printf("\n===============================================\n\n");
 			printf("\n|     REALMENTE DESEAS ELIMINAR EL USUARIO   	 |\n");
-			printf("  |           [1] NO                     		 |\n");
-			printf("  |           [2] SI                   		  	 |\n");
+			printf("  |           [1] NO                     	 |\n");
+			printf("  |           [2] SI                   		 |\n");
 			printf("OPCION: ");
 			scanf("%s",&op);
 			switch (op){
@@ -717,19 +760,61 @@ void eliminar(FILE* arch){
 					printf("\n\n============================\n\n");
 				break;
 				case '2':
+					archivotemporal=fopen("trabajadores2.in","a+");
+					extrabajadores=fopen("extrabajadores.txt","a+");
+					if(extrabajadores == NULL){
+						printf("\nNO SE ENCONTRO ARCHIVO\n");
+						return;
+					}
 					ingresarEMPLE(empleados, extrabajadores,depa,cargo);
+					if(archivotemporal == NULL){
+						printf("\nNO SE ENCONTRO ARCHIVO\n");
+						return;
+					}
+					while(!(feof(archiempleado))){
+						fscanf(archiempleado,"%d",&empleados.CI);
+						printf("%d\n",empleados.CI);
+						fscanf(archiempleado,"%s",empleados.nombre);
+						fscanf(archiempleado,"%s",empleados.apellido);
+						fscanf(archiempleado,"%s",depa);//recorremos toda las casillas 
+						fscanf(archiempleado,"%s",cargo);
+						fscanf(archiempleado,"%s",fecha);
+						fscanf(archiempleado,"%f",&empleados.sueldo);
+						if(ci==empleados.CI){ //si encontramos la CI modificamos los datos
+						}else{ //sino encontramos la CI almacenamos los datos en el archivo nuevo 
+							fprintf(archivotemporal,"%d\t\t",empleados.CI);
+							printf("%d\n",empleados.CI);
+							
+							fprintf(archivotemporal,"%s ",empleados.nombre);
+							fprintf(archivotemporal,"%s\t\t",empleados.apellido);
+							fprintf(archivotemporal,"%s\t\t",depa);
+							fprintf(archivotemporal,"%s\t\t",cargo);
+							fprintf(archivotemporal,"%s\t\t",fecha);
+							fprintf(archivotemporal,"%.3f\t\t\n",empleados.sueldo);
+						}
+					}
+					fclose(extrabajadores);
+					fclose(archivotemporal);
+					fclose(arch);
+					
+					ret = remove("trabajadores.in");//eliminamos el archivo viejo
+
+					if(ret == 0) {
+						printf("File deleted successfully");
+					} else {
+						printf("Error: unable to delete the file");
+					}
+					rename("trabajadores2.in","trabajadores.in");//reasignamos el nombre del ar
 					op='1';
 				break;
 			default:
-					
 				break;
 			}
 		}while(op!='1');
 	}else{
 		printf("\nLA CI INDICADA NO ESTA ASOCIADA A NINGUN TRABAJADOR DE LA EMPRESA\n");
 	}
-	fclose(arch);
-	fclose(extrabajadores);
+	fclose(archiempleado);
 }
 
 void ingresarEMPLE(empleado empleados, FILE* ARCH,char depa[20],char cargo[20]){
@@ -759,11 +844,11 @@ void ingresarEMPLE(empleado empleados, FILE* ARCH,char depa[20],char cargo[20]){
 		//pedimos el motivo de desincorporacion y lo guardamos en el archivo
 		//menu de eliminacion
 		printf("\n===============================================\n\n");
-		printf("\n|     	MOTIVO DE ELIMINACION	   		   |\n");
-		printf("  |           [1] TRASLADO                     |\n");
-		printf("  |           [2] RENUNCIA 					   |\n");
-		printf("  |           [3] DESPIDO                      |\n");
-		printf("  |           [.] OTRO		 	          	   |\n");
+		printf("\n|     MOTIVO DE ELIMINACION	  		|\n");
+		printf("  |           [1] TRASLADO                      |\n");
+		printf("  |           [2] RENUNCIA 			|\n");
+		printf("  |           [3] DESPIDO                       |\n");
+		printf("  |           [.] OTRO		 	        |\n");
 		printf("\n===============================================\n\n");
 		printf("OPCION: ");
 		scanf("%s",&op2);
