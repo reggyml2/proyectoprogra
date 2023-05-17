@@ -760,7 +760,7 @@ void eliminar(FILE* arch){
 					printf("\n\n============================\n\n");
 				break;
 				case '2':
-					archivotemporal=fopen("trabajadores2.in","a+");
+					archivotemporal=fopen("trabajadores3.in","a+");
 					extrabajadores=fopen("extrabajadores.txt","a+");
 					if(extrabajadores == NULL){
 						printf("\nNO SE ENCONTRO ARCHIVO\n");
