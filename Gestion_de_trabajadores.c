@@ -51,10 +51,10 @@ void sueldoMayorMenor();
 // prototipo: 3.modulo modificar
 void modificar(FILE* arch);
 
-//prototipo: 4.modulo eliminar
-void eliminar(FILE* arch);
+// prototipo: 4.modulo eliminar
+void eliminar();
 //void eliminarEMPLEADO(FILE* arch);
-void ingresarEMPLE(empleado empleados, FILE* ARCH,char depa[20],char cargo[20]);
+void ingresarEMPLE(empleado empleados, FILE* ARCH,char depa[20],char cargo[20],char fecha[20]);
 
 //programa principal
 int main(){
@@ -100,10 +100,8 @@ int main(){
 					rename("trabajadores2.in","trabajadores.in");//reasignamos el nombre del archivo principal al secundario
 				break;
 				case '4':
-					trabajadores=fopen("trabajadores.in","r");
-					//eliminar trabajadores
-					eliminar(trabajadores);
 					fclose(trabajadores);
+					eliminar();
 				break;
 				case '5':
 					printf("\n\n============================\n\n");
@@ -710,19 +708,16 @@ void modificar(){
 }
 
 //4.modulo eliminar
-void eliminar(FILE* arch){
+void eliminar(){
 	//abrimos el archivo y la estructura empleados y las variables necesarias
 	int ci, exist=0,valiFecha,ret;
 	empleado empleados;
 	char depa[20],cargo[20],fecha[20];
+	FILE* arch;
 	FILE* archivotemporal;
 	FILE* extrabajadores;
 	FILE* archiempleado;
-	archiempleado=fopen("trabajadores.in","a+");
-	if(archiempleado == NULL){
-		printf("\nNO SE ENCONTRO ARCHIVO\n");
-		return;
-	}
+	arch=fopen("trabajadores.in","r");
 	printf("\nINGRESE LA CI DEL USUARIO QUE DESEA ELIMINAR: ");
 	scanf("%d",&ci);
 	//iniciamos el ciclo para encontrar el usuario de la CI ingresada
@@ -740,19 +735,25 @@ void eliminar(FILE* arch){
 			printf("\nEl departamento asociado es: %s",depa);
 			printf("\nEl cargo asociado es: %s",cargo);
 			printf("\nLa fecha de ingreso es: %s",fecha);
+			printf("\nEl sueldo es: %.2f\n",empleados.sueldo);
 			exist=1;
 		}	
 	}
+	
+	fclose(arch);
+	
 	if(exist==1){
 		char op;
 		//le preguntamos al usuario si esta seguro de eliminar al empleado
+		
 		do{
 			printf("\n===============================================\n\n");
 			printf("\n|     REALMENTE DESEAS ELIMINAR EL USUARIO   	 |\n");
-			printf("  |           [1] NO                     	 |\n");
-			printf("  |           [2] SI                   		 |\n");
+			printf("  |           [1] NO                     	 	 |\n");
+			printf("  |           [2] SI                   			 |\n");
 			printf("OPCION: ");
-			scanf("%s",&op);
+			fflush(stdin);
+			op=getchar();
 			switch (op){
 				case '1':
 					printf("\n\n============================\n\n");
@@ -762,18 +763,10 @@ void eliminar(FILE* arch){
 				case '2':
 					archivotemporal=fopen("trabajadores3.in","a+");
 					extrabajadores=fopen("extrabajadores.txt","a+");
-					if(extrabajadores == NULL){
-						printf("\nNO SE ENCONTRO ARCHIVO\n");
-						return;
-					}
-					ingresarEMPLE(empleados, extrabajadores,depa,cargo);
-					if(archivotemporal == NULL){
-						printf("\nNO SE ENCONTRO ARCHIVO\n");
-						return;
-					}
-					while(!(feof(archiempleado))){
+					ingresarEMPLE(empleados, extrabajadores,depa,cargo,fecha);
+					archiempleado=fopen("trabajadores.in","a+");
+					do{
 						fscanf(archiempleado,"%d",&empleados.CI);
-						printf("%d\n",empleados.CI);
 						fscanf(archiempleado,"%s",empleados.nombre);
 						fscanf(archiempleado,"%s",empleados.apellido);
 						fscanf(archiempleado,"%s",depa);//recorremos toda las casillas 
@@ -782,30 +775,33 @@ void eliminar(FILE* arch){
 						fscanf(archiempleado,"%f",&empleados.sueldo);
 						if(ci==empleados.CI){ //si encontramos la CI modificamos los datos
 						}else{ //sino encontramos la CI almacenamos los datos en el archivo nuevo 
-							fprintf(archivotemporal,"%d\t\t",empleados.CI);
-							printf("%d\n",empleados.CI);
-							
-							fprintf(archivotemporal,"%s ",empleados.nombre);
-							fprintf(archivotemporal,"%s\t\t",empleados.apellido);
-							fprintf(archivotemporal,"%s\t\t",depa);
-							fprintf(archivotemporal,"%s\t\t",cargo);
-							fprintf(archivotemporal,"%s\t\t",fecha);
-							fprintf(archivotemporal,"%.3f\t\t\n",empleados.sueldo);
+							if (feof(archiempleado))
+							{
+								fprintf(archivotemporal,"%d\t\t",empleados.CI);
+								fprintf(archivotemporal,"%s ",empleados.nombre);
+								fprintf(archivotemporal,"%s\t\t",empleados.apellido);
+								fprintf(archivotemporal,"%s\t\t",depa);
+								fprintf(archivotemporal,"%s\t\t",cargo);
+								fprintf(archivotemporal,"%s\t\t",fecha);
+								fprintf(archivotemporal,"%.2f",empleados.sueldo);
+							}else
+							{
+								fprintf(archivotemporal,"%d\t\t",empleados.CI);
+								fprintf(archivotemporal,"%s ",empleados.nombre);
+								fprintf(archivotemporal,"%s\t\t",empleados.apellido);
+								fprintf(archivotemporal,"%s\t\t",depa);
+								fprintf(archivotemporal,"%s\t\t",cargo);
+								fprintf(archivotemporal,"%s\t\t",fecha);
+								fprintf(archivotemporal,"%.2f\n",empleados.sueldo);
+							}
 						}
-					}
+					}while(!(feof(archiempleado)));
+					op='1';
+					fclose(archiempleado);
 					fclose(extrabajadores);
 					fclose(archivotemporal);
-					fclose(arch);
-					
-					ret = remove("trabajadores.in");//eliminamos el archivo viejo
-
-					if(ret == 0) {
-						printf("File deleted successfully");
-					} else {
-						printf("Error: unable to delete the file");
-					}
-					rename("trabajadores2.in","trabajadores.in");//reasignamos el nombre del ar
-					op='1';
+					remove("trabajadores.in");
+					rename("trabajadores3.in","trabajadores.in");
 				break;
 			default:
 				break;
@@ -814,10 +810,9 @@ void eliminar(FILE* arch){
 	}else{
 		printf("\nLA CI INDICADA NO ESTA ASOCIADA A NINGUN TRABAJADOR DE LA EMPRESA\n");
 	}
-	fclose(archiempleado);
 }
 
-void ingresarEMPLE(empleado empleados, FILE* ARCH,char depa[20],char cargo[20]){
+void ingresarEMPLE(empleado empleados, FILE* ARCH,char depa[20],char cargo[20],char fecha[20]){
 	int valFecha=0;
 	char op2;
 		//guardamos la cedula del empleado en el archivo
@@ -830,6 +825,10 @@ void ingresarEMPLE(empleado empleados, FILE* ARCH,char depa[20],char cargo[20]){
 		fprintf(ARCH," %s\t\t", depa);
 		//guardamos el cargo que tiene el empleado en el archivo
 		fprintf(ARCH," %s\t\t", cargo);
+		//pedimos al usuario fecha de desincorporacion y la guardamos en el archivo
+		fprintf(ARCH," %s\t\t", fecha);
+		//guardamos el cargo que tiene el empleado en el archivo
+		fprintf(ARCH," %.2f\t\t", empleados.sueldo);
 		//pedimos al usuario fecha de desincorporacion y la guardamos en el archivo
 		do{
 			printf("\nIngresa la fecha de desincorporacion de la empresa en formato DD/MM/AA: \n");
@@ -844,7 +843,7 @@ void ingresarEMPLE(empleado empleados, FILE* ARCH,char depa[20],char cargo[20]){
 		//pedimos el motivo de desincorporacion y lo guardamos en el archivo
 		//menu de eliminacion
 		printf("\n===============================================\n\n");
-		printf("\n|     MOTIVO DE ELIMINACION	  		|\n");
+		printf("\n|     	MOTIVO DE ELIMINACION	   	|\n");
 		printf("  |           [1] TRASLADO                      |\n");
 		printf("  |           [2] RENUNCIA 			|\n");
 		printf("  |           [3] DESPIDO                       |\n");
@@ -855,23 +854,23 @@ void ingresarEMPLE(empleado empleados, FILE* ARCH,char depa[20],char cargo[20]){
 		switch (op2){
 			case '1':
 				//ingresamos el motivo TRASLADO en el acrhivo
-				fprintf(ARCH,"TRASLADO\t\t \n");
-				printf("TRASLADO");
+				fprintf(ARCH,"TRASLADO\n");
+				//printf("TRASLADO");
 			break;
 			case '2':
 				//ingresamos el motivo RENUNCIA en el acrhivo
-				fprintf(ARCH,"RENUNCIA\t\t \n");
-				printf("RENUNCIA");
+				fprintf(ARCH,"RENUNCIA\n");
+				//printf("RENUNCIA");
 			break;
 			case '3':
 				//ingresamos el motivo DESPIDO en el acrhivo
-				fprintf(ARCH,"DESPIDO\t\t \n");
-				printf("DESPIDO");
+				fprintf(ARCH,"DESPIDO\n");
+				//printf("DESPIDO");
 			break;
 		default:
 				//ingresamos el motivo OTRO en el acrhivo
-			fprintf(ARCH,"OTRO\t\t \n");
-			printf("OTRO");
+			fprintf(ARCH,"OTRO\n");
+			//printf("OTRO");
 		break;
 		}
 }
