@@ -717,7 +717,7 @@ void modificar(){
 
 void eliminar(){
 	//abrimos el archivo y la estructura empleados y las variables necesarias
-	int ci, exist=0,valiFecha,ret;
+	int ci, exist=0;
 	empleado empleados;
 	char depa[20],cargo[20],fecha[20];
 	FILE* arch;
